@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 type ProfileProps = {
@@ -24,9 +24,10 @@ export default function ProfileCard({
   return (
     <View style={styles.card}>
       <View style={styles.avatarContainer}>
-        <Image source={require('./avatar.png')}style={styles.avatar} />
+        <Image source={require('./avatar.png')} style={styles.avatar} />
         <Ionicons name="checkmark-circle" size={24} color="#007AFF" style={styles.checkIcon} />
       </View>
+
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.subtitle}>{major}</Text>
       <Text style={styles.info}>{age} | {nationality}</Text>
@@ -48,7 +49,6 @@ export default function ProfileCard({
   );
 }
 
-
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#60A5FA',
@@ -64,30 +64,28 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   avatarContainer: {
-    width: '98%',               // make it responsive
-    aspectRatio: 1,             // maintain a square shape
-    backgroundColor:'rgb(208, 226, 253)',
+    width: '98%',
+    aspectRatio: 1,
+    backgroundColor: 'rgb(208, 226, 253)',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
     marginBottom: 10,
-    alignSelf: 'center',        // center within parent
+    alignSelf: 'center',
     overflow: 'hidden',
-    padding: 10,                // optional: inner spacing around avatar
+    padding: 10,
   },
-  
   avatar: {
     width: 300,
     height: 300,
-    borderRadius: 0, // makes it circular
+    borderRadius: 0,
   },
-  
   checkIcon: {
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: '#fff', // optional: adds contrast behind icon
+    backgroundColor: '#fff',
     borderRadius: 12,
   },
   name: {
@@ -124,16 +122,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     fontSize: 12,
     margin: 4,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 12,
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-    marginTop: 10,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: '600',
   },
 });

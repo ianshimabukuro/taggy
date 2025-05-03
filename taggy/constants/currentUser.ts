@@ -1,4 +1,6 @@
-export const currentUser = {
+import type { MockUser } from '../types/models';
+
+export const currentUser: MockUser = {
   id: "me",
   name: "Ian Shimabukuro",
   age: 24,
