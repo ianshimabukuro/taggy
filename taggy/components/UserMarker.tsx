@@ -17,7 +17,7 @@ export default function UserMarker({ user, onPress }: Props) {
     >
       <View style={styles.markerContainer}>
         <Text style={styles.emoji}>
-          {user.activeActivityId ? '🧲' : '🧿'}
+          {user.activeActivityId ? '🧲' : '💣'}
         </Text>
       </View>
     </Marker>
