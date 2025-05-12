@@ -5,6 +5,10 @@ import type { MockUser } from '../types/models';
 
 type Props = {
   user: MockUser;
+  coordinate: {
+    latitude: number;
+    longitude: number;
+  };
   onPress: () => void;
 };
 
