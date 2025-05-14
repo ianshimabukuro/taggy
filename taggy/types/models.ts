@@ -12,6 +12,7 @@ export type MockUser = {
     activeActivityId: string | null; //Currently hosting, if yes which activity ID
     joinedGroupId: string | null; //Is it in a group or not, if yes which group
     radius: number; //
+    profilePicture?: string; // Added profilePicture property
   };
   
 export type Group = {
