@@ -48,8 +48,8 @@ export default function Profile() {
       nationality={profileData.nationality}
       age={profileData.age}
       major={profileData.major}
-      picture="./avatar.png" // This is static for now — you can upgrade later
-      languages={['Portuguese','English']} 
+      picture={profileData.profilePicture || './avatar.png'} // Dynamically load profile picture
+      languages={profileData.languages || []} // Add languages if available
       hobbies={profileData.hobbies || []}
     />
   );
