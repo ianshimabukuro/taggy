@@ -25,7 +25,7 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 // ✅ Initialize Firebase Auth with persistence
 const auth = initializeAuth(app, {
-  //persistence: getReactNativePersistence(AsyncStorage),
+  persistence: getReactNativePersistence(AsyncStorage),
 });
 
 const db = getFirestore(app);

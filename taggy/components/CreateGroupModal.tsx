@@ -30,13 +30,23 @@ export default function CreateGroupModal({
       return;
     }
 
+    const minutes = parseInt(duration);
+    const timeoutDate = new Date(Date.now() + minutes * 60 * 1000);
+
+    // Log both UTC and local times
+    console.log('🕒 Timeout details:');
+    console.log('- Current time (local):', new Date().toLocaleString());
+    console.log('- Current time (UTC):', new Date().toISOString());
+    console.log('- Timeout (local):', timeoutDate.toLocaleString());
+    console.log('- Timeout (UTC):', timeoutDate.toISOString());
+
     const newGroup: Group = {
       id: `g${existingGroupCount + 1}`,
       title,
       hostUserId: currentUser.id,
       participantIds: [currentUser.id],
       limit: parseInt(limit),
-      timeout: new Date(Date.now() + parseInt(duration) * 60 * 1000),
+      timeout: timeoutDate, // This is a future Date object
       meetingPoint: {
         latitude: location?.latitude ?? 0,
         longitude: location?.longitude ?? 0,

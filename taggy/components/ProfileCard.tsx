@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 type ProfileProps = {
   name: string;
-  picture: string;
+  picture: string; // URL of the user's profile picture
   age: number;
   nationality: string;
   major: string;
@@ -24,7 +24,15 @@ export default function ProfileCard({
   return (
     <View style={styles.card}>
       <View style={styles.avatarContainer}>
-        <Image source={require('./avatar.png')} style={styles.avatar} />
+        {/* Dynamically load the user's profile picture */}
+        <Image
+          source={
+            picture
+              ? { uri: picture } // Use the profile picture URL if available
+              : require('./avatar.png') // Fallback to the default avatar
+          }
+          style={styles.avatar}
+        />
         <Ionicons name="checkmark-circle" size={24} color="#007AFF" style={styles.checkIcon} />
       </View>
 
@@ -79,7 +87,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 300,
     height: 300,
-    borderRadius: 0,
+    borderRadius: 150, // Make the avatar circular
   },
   checkIcon: {
     position: 'absolute',
