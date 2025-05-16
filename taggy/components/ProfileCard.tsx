@@ -4,11 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 type ProfileProps = {
   name: string;
-  picture: string; // URL of the user's profile picture
+  picture: string;
   age: number;
   nationality: string;
   major: string;
-  languages: string[];
   hobbies: string[];
 };
 
@@ -18,39 +17,45 @@ export default function ProfileCard({
   age,
   nationality,
   major,
-  languages,
   hobbies,
 }: ProfileProps) {
   return (
     <View style={styles.card}>
       <View style={styles.avatarContainer}>
-        {/* Dynamically load the user's profile picture */}
         <Image
           source={
             picture
-              ? { uri: picture } // Use the profile picture URL if available
-              : require('./avatar.png') // Fallback to the default avatar
+              ? { uri: picture }
+              : require('./avatar.png')
           }
           style={styles.avatar}
         />
-        <Ionicons name="checkmark-circle" size={24} color="#007AFF" style={styles.checkIcon} />
+        <Ionicons name="checkmark-circle" size={28} color="#34D399" style={styles.checkIcon} />
       </View>
 
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.subtitle}>{major}</Text>
       <Text style={styles.info}>{age} | {nationality}</Text>
 
-      <Text style={styles.sectionTitle}>Languages</Text>
-      <View style={styles.badgeContainer}>
-        {languages.map((lang, idx) => (
-          <Text key={idx} style={styles.badge}>{lang}</Text>
-        ))}
-      </View>
-
       <Text style={styles.sectionTitle}>Hobbies</Text>
       <View style={styles.badgeContainer}>
         {hobbies.map((hobby, idx) => (
-          <Text key={idx} style={styles.badge}>{hobby}</Text>
+          <View
+            key={idx}
+            style={[
+              styles.badge,
+              { backgroundColor: idx % 2 === 0 ? '#FF9500' : '#E5E7EB' }
+            ]}
+          >
+            <Text
+              style={[
+                styles.badgeText,
+                { color: idx % 2 === 0 ? '#fff' : '#FF9500' }
+              ]}
+            >
+              {hobby}
+            </Text>
+          </View>
         ))}
       </View>
     </View>
@@ -59,76 +64,102 @@ export default function ProfileCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#60A5FA',
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 28,
+    padding: 26,
     alignItems: 'center',
-    width: '90%',
+    width: '92%',
     alignSelf: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowColor: '#FF9500',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 18,
+    elevation: 8,
+    marginTop: 24,
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#FF9500',
   },
   avatarContainer: {
-    width: '98%',
-    aspectRatio: 1,
-    backgroundColor: 'rgb(208, 226, 253)',
-    borderRadius: 20,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    marginBottom: 10,
-    alignSelf: 'center',
+    marginBottom: 16,
+    borderWidth: 5,
+    borderColor: '#FF9500',
+    shadowColor: '#FF9500',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 6,
     overflow: 'hidden',
-    padding: 10,
   },
   avatar: {
-    width: 300,
-    height: 300,
-    borderRadius: 150, // Make the avatar circular
+    width: 128,
+    height: 128,
+    borderRadius: 64,
+    resizeMode: 'cover',
+    backgroundColor: '#F2F6FC',
   },
   checkIcon: {
     position: 'absolute',
-    top: 6,
-    left: 6,
+    bottom: 8,
+    right: 8,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 14,
+    padding: 2,
+    elevation: 2,
   },
   name: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#FF9500',
+    marginTop: 2,
+    marginBottom: 2,
+    letterSpacing: 0.5,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#007AFF',
+    fontSize: 17,
+    color: '#000000', // orange for major
+    fontWeight: '700',
+    marginBottom: 2,
   },
   info: {
-    fontSize: 12,
-    color: '#ffffff',
-    marginBottom: 10,
+    fontSize: 14,
+    color: '#4A4E69',
+    marginBottom: 12,
+    fontWeight: '500',
   },
   sectionTitle: {
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 12,
+    marginBottom: 4,
     alignSelf: 'flex-start',
-    color: '#444',
+    color: '#FF9500',
+    fontSize: 15,
+    letterSpacing: 0.2,
   },
   badgeContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 10,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
   },
   badge: {
-    backgroundColor: '#007AFF',
-    color: 'white',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    fontSize: 12,
-    margin: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    marginRight: 6,
+    marginBottom: 6,
+  },
+  badgeText: {
+    fontWeight: '600',
+    fontSize: 13,
+    letterSpacing: 0.2,
   },
 });

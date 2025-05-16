@@ -35,7 +35,14 @@ export default function UserMapMarker({
             ? { uri: user.profilePicture }
             : require('../assets/default-icon.png')
         }
-        style={{ width: 40, height: 40, borderRadius: 20 }}
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          borderWidth: 2,
+          borderColor: '#FF9500', // orange
+          backgroundColor: '#E0E1DD'
+        }}
       />
 
       <Callout onPress={() => onSelect(user)}>
@@ -63,34 +70,42 @@ export default function UserMapMarker({
 
 const styles = StyleSheet.create({
   calloutContainer: {
-    backgroundColor: '#ffffff', // White background
-    borderRadius: 8,
-    padding: 10,
-    minWidth: 200, // Minimum width for the callout
-    maxWidth: 300, // Maximum width for the callout
-    alignItems: 'flex-start', // Align text to the left
+    backgroundColor: '#F2F6FC',
+    borderRadius: 14,
+    padding: 14,
+    minWidth: 200,
+    maxWidth: 300,
+    alignItems: 'flex-start',
+    shadowColor: '#22223B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
   },
   userName: {
     fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 4,
-    color: '#000', // Black text for contrast
+    fontSize: 17,
+    marginBottom: 6,
+    color: '#22223B',
+    letterSpacing: 0.2,
   },
   groupTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 4,
-    color: '#000', // Black text for contrast
+    fontSize: 15,
+    fontWeight: '700',
+    marginTop: 2,
+    color: '#007AFF',
+    marginBottom: 2,
   },
   groupDetails: {
-    fontSize: 12,
+    fontSize: 13,
     marginTop: 2,
-    color: '#000', // Black text for contrast
+    color: '#4A4E69',
+    fontWeight: '500',
   },
   notHosting: {
-    fontSize: 12,
+    fontSize: 13,
     fontStyle: 'italic',
-    marginTop: 4,
-    color: '#555', // Subtle gray for "Not hosting"
+    marginTop: 6,
+    color: '#A0A4B8',
   },
 });

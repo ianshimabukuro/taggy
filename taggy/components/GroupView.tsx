@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // For the "X" icon
-import { doc, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import type { Group, MockUser } from '../types/models';
 
 type Props = {
@@ -12,6 +10,15 @@ type Props = {
   onLeave: () => Promise<void>;
   onEnd: (groupId: string) => Promise<void>;
 };
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 export default function GroupView({ group, currentUser, users, onLeave, onEnd }: Props) {
   const host = users.find((u) => u.id === group.hostUserId);
@@ -26,69 +33,6 @@ export default function GroupView({ group, currentUser, users, onLeave, onEnd }:
     Math.max(0, Math.floor((group.timeout.toDate().getTime() - Date.now()) / 1000))
   );
 
-  // State for checked-out participants
-  const [checkedOut, setCheckedOut] = useState<Record<string, boolean>>(group.checkedOut || {});
-  const [inputCode, setInputCode] = useState('');
-  const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
-
-  // Real-time listener for checkedOut updates
-  useEffect(() => {
-    const groupRef = doc(db, 'groups', group.id);
-    const unsubscribe = onSnapshot(groupRef, async (docSnapshot) => {
-      const data = docSnapshot.data();
-      if (data?.checkedOut) {
-        setCheckedOut(data.checkedOut);
-
-        // Check if all participants (excluding the host) are checked out
-        const allCheckedOut = participants
-          .filter((p) => p.id !== host?.id) // Exclude the host
-          .every((p) => data.checkedOut[p.id]);
-
-        if (allCheckedOut) {
-          try {
-            // Delete the group
-            await deleteDoc(groupRef);
-            console.log(`✅ Group ${group.id} deleted because all participants checked out.`);
-
-            // Clear the host's group references
-            if (host) {
-              const hostRef = doc(db, 'users', host.id);
-              await updateDoc(hostRef, {
-                activeActivityId: null,
-                joinedGroupId: null,
-              });
-              console.log(`✅ Cleared group references for host ${host.id}`);
-            }
-          } catch (err) {
-            console.error('❌ Error deleting group or clearing host references:', err);
-          }
-        }
-      }
-    });
-
-    return () => unsubscribe();
-  }, [group.id, participants, host?.id]);
-
-  // Validate and mark participant as checked out
-  const handleCheckOut = async () => {
-    if (!selectedParticipant || !inputCode.trim()) return;
-
-    const participantId = selectedParticipant;
-    const expectedCode = participantId.slice(0, 4);
-
-    if (inputCode === expectedCode) {
-      const groupRef = doc(db, 'groups', group.id);
-      await updateDoc(groupRef, {
-        [`checkedOut.${participantId}`]: true,
-      });
-
-      setInputCode(''); // Clear the input field
-      setSelectedParticipant(null); // Clear the selected participant
-    } else {
-      alert('Invalid code. Please try again.');
-    }
-  };
-
   // Update the remaining time every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -96,7 +40,7 @@ export default function GroupView({ group, currentUser, users, onLeave, onEnd }:
       setRemainingTime(timeLeft);
     }, 1000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, [group.timeout]);
 
   // Format remaining time as HH:MM:SS
@@ -108,161 +52,243 @@ export default function GroupView({ group, currentUser, users, onLeave, onEnd }:
   };
 
   return (
-    <View style={styles.groupContainer}>
-      {/* Title and "End Activity" Icon */}
-      <View style={styles.header}>
-        <Text style={styles.groupTitle}>{group.title}</Text>
-        {isHost && (
-          <TouchableOpacity onPress={() => onEnd(group.id)} style={styles.endActivityButton}>
-            <Ionicons name="close" size={24} color="black" />
+    <View style={styles.outerContainer}>
+      <View style={styles.card}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.groupTitle}>{group.title}</Text>
+          {isHost && (
+            <TouchableOpacity onPress={() => onEnd(group.id)} style={styles.endActivityButton}>
+              <Ionicons name="close" size={22} color="#fff" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Host */}
+        <View style={styles.hostRow}>
+          <View style={styles.avatarHost}>
+            <Text style={styles.avatarText}>{host ? getInitials(host.name) : '?'}</Text>
+          </View>
+          <View>
+            <Text style={styles.label}>Host</Text>
+            <Text style={styles.value}>{host?.name}</Text>
+            {isHost && <Text style={styles.hostBadge}>You're hosting this activity</Text>}
+          </View>
+        </View>
+
+        {/* Participants */}
+        <Text style={[styles.label, { marginTop: 18 }]}>
+          Participants <Text style={styles.participantCount}>({participants.length}/{group.limit})</Text>
+        </Text>
+        <View style={styles.participantList}>
+          {participants
+            .filter((u) => u.id !== host?.id)
+            .map((u) => (
+              <View key={u.id} style={styles.participantRow}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{getInitials(u.name)}</Text>
+                </View>
+                <View>
+                  <Text style={styles.participantName}>{u.name}</Text>
+                  <Text style={styles.participantMajor}>{u.major}</Text>
+                </View>
+              </View>
+            ))}
+        </View>
+
+        {/* Meeting Point */}
+        <View style={styles.meetingPointRow}>
+          <Ionicons name="location-sharp" size={18} color="#007AFF" style={{ marginRight: 6 }} />
+          <Text style={styles.label}>Meeting point:</Text>
+          <Text style={styles.value}>
+            {" "}
+            {group.meetingPoint.latitude.toFixed(5)}, {group.meetingPoint.longitude.toFixed(5)}
+          </Text>
+        </View>
+
+        {/* Countdown Timer */}
+        <View style={styles.timerContainer}>
+          <Ionicons name="time-outline" size={18} color="#fff" style={{ marginRight: 6 }} />
+          <Text style={styles.timerText}>{formatTime(remainingTime)}</Text>
+        </View>
+
+        {/* Leave Button for Non-Hosts */}
+        {!isHost && (
+          <TouchableOpacity style={styles.leaveButton} onPress={onLeave}>
+            <Ionicons name="exit-outline" size={18} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.leaveButtonText}>Leave Group</Text>
           </TouchableOpacity>
         )}
       </View>
-
-      {/* Host and Participants */}
-      <Text style={styles.label}>Host: <Text style={styles.value}>{host?.name}</Text></Text>
-      {isHost && <Text style={styles.hostBadge}>You're hosting this activity</Text>}
-
-      <Text style={styles.label}>Participants ({participants.length}/{group.limit}):</Text>
-      {participants.map((u) => {
-        if (u.id === host?.id) return null; // Skip the host
-        return (
-          <Text key={u.id} style={styles.participant}>
-            • {u.name} ({u.major}) - {checkedOut[u.id] ? 'Checked Out' : 'Not Checked Out'}
-          </Text>
-        );
-      })}
-
-      {/* Meeting Point */}
-      <Text style={styles.label}>
-        Meeting point:{" "}
-        <Text style={styles.value}>
-          {group.meetingPoint.latitude.toFixed(5)}, {group.meetingPoint.longitude.toFixed(5)}
-        </Text>
-      </Text>
-
-      {/* Centralized Countdown Timer */}
-      <View style={styles.timerContainer}>
-        <Text style={styles.timerText}>{formatTime(remainingTime)}</Text>
-      </View>
-
-      {/* Check Out Participants */}
-      {isHost && (
-        <View style={styles.checkOutContainer}>
-          <Text style={styles.label}>Check Out Participants:</Text>
-          <FlatList
-            data={participants.filter((p) => p.id !== host?.id && !checkedOut[p.id])} // Exclude host
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <Button
-                title={`Select ${item.name}`}
-                onPress={() => setSelectedParticipant(item.id)}
-              />
-            )}
-          />
-          {selectedParticipant && (
-            <View style={styles.inputContainer}>
-              <Text>Enter Code for {selectedParticipant}:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter code"
-                value={inputCode}
-                onChangeText={setInputCode}
-              />
-              <Button title="Check Out" onPress={handleCheckOut} />
-            </View>
-          )}
-        </View>
-      )}
-
-      {/* Leave Button for Non-Hosts */}
-      {!isHost && (
-        <View style={styles.leaveButtonContainer}>
-          <Button title="Leave Group" onPress={onLeave} color="#FF3B30" />
-        </View>
-      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  groupContainer: {
+  outerContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#F2F6FC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: '#fff',
+    borderRadius: 24,
     padding: 24,
+    shadowColor: '#FF9500',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: '#FF9500', // orange border
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 18,
   },
   groupTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FF9500', // orange title
+    flexShrink: 1,
   },
   endActivityButton: {
-    padding: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FF3B30',
     borderRadius: 16,
+    padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 8,
+    shadowColor: '#FF3B30',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  hostRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  avatarHost: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#fff',
+    borderWidth: 3,
+    borderColor: '#FF9500', // orange border for host avatar
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  avatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#fff', // changed from #A0C4FF to white
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+    borderWidth: 2,
+    borderColor: '#FF9500', // orange border for participant avatars
+  },
+  avatarText: {
+    color: '#FF9500', // orange initials
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   label: {
-    fontWeight: 'bold',
-    marginTop: 10,
+    fontWeight: '600',
+    color: '#22223B',
+    fontSize: 15,
   },
   value: {
-    fontWeight: 'normal',
+    fontWeight: '400',
+    color: '#4A4E69',
+    fontSize: 15,
   },
   hostBadge: {
     color: '#007AFF',
-    marginTop: 4,
+    marginTop: 2,
+    fontStyle: 'italic',
+    fontSize: 13,
+  },
+  participantCount: {
+    color: '#FF9500', // orange participant count
+    fontWeight: 'bold',
+  },
+  participantList: {
+    marginTop: 6,
+    marginBottom: 10,
+  },
+  participantRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+    marginLeft: 4,
+  },
+  participantName: {
+    fontSize: 15,
+    color: '#22223B',
+    fontWeight: '500',
+  },
+  participantMajor: {
+    fontSize: 13,
+    color: '#4A4E69',
     fontStyle: 'italic',
   },
-  participant: {
-    marginLeft: 10,
-    marginTop: 2,
+  meetingPointRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 18,
   },
   timerContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: '50%',
-    transform: [{ translateX: -100 }], // Center horizontally
-    width: 200,
-    height: 80,
-    backgroundColor: '#007AFF',
-    borderRadius: 40,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
+    alignSelf: 'center',
+    backgroundColor: '#FF9500', // orange timer background
+    borderRadius: 24,
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    marginBottom: 18,
+    shadowColor: '#FF9500',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 2,
   },
   timerText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
+    letterSpacing: 1,
   },
-  leaveButtonContainer: {
-    marginTop: 20,
+  leaveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF3B30',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     alignSelf: 'center',
-    width: '80%',
+    marginTop: 8,
+    shadowColor: '#FF3B30',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  checkOutContainer: {
-    marginTop: 20,
-  },
-  inputContainer: {
-    marginTop: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 10,
+  leaveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 4,
   },
 });

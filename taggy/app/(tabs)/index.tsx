@@ -18,6 +18,7 @@ import useUsers from '@/hooks/useUsers';
 import useCurrentLocation from '@/hooks/useCurrentLocation';
 import { calculateRemainingTime } from '@/utils/timeUtils';
 import { leaveGroup,handleCreateGroup } from '@/utils/groupActions';
+import { Ionicons } from '@expo/vector-icons';
 
 // 🧩 Imported components
 import GroupView from '../../components/GroupView';
@@ -138,8 +139,12 @@ export default function ExploreScreen() {
 
       {/* ➕ FAB */}
       {!currentUser?.activeActivityId && (
-        <TouchableOpacity style={styles.fab} onPress={() => setShowCreateModal(true)}>
-          <Text style={styles.fabText}>+</Text>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => setShowCreateModal(true)}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="add" size={36} color="#fff" />
         </TouchableOpacity>
       )}
 
@@ -192,6 +197,7 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#E6F0FF', // Light blue background for better contrast
   },
   map: {
     width: Dimensions.get('window').width,
@@ -201,21 +207,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     right: 20,
-    backgroundColor: '#007AFF',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    backgroundColor: '#FF9500', // Orange for FAB
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    borderWidth: 3,
+    borderColor: '#fff',
+    shadowColor: '#FF9500',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
   },
   fabText: {
-    color: 'white',
-    fontSize: 32,
-    fontWeight: 'bold',
+    display: 'none',
   },
 });

@@ -1,7 +1,7 @@
 //Login Screen 
 
 import { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -54,39 +54,111 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Login</Text>
+    <View style={styles.outer}>
+      <View style={styles.card}>
+        <Text style={styles.header}>Login to Taggy</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          placeholderTextColor="#A0A4B8"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          placeholderTextColor="#A0A4B8"
+        />
 
-      <Button title="Log In" onPress={handleLogin} />
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.85}>
+          <Text style={styles.loginButtonText}>Log In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.signupLink}
+          onPress={() => router.replace('/signup')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.signupText}>
+            Don't have an account? <Text style={{ color: '#FF9500', fontWeight: 'bold' }}>Sign Up</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  header: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
+  outer: {
+    flex: 1,
+    backgroundColor: '#F2F6FC',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  card: {
+    width: '92%',
+    maxWidth: 400,
+    backgroundColor: '#fff',
+    borderRadius: 22,
+    padding: 28,
+    shadowColor: '#22223B',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.13,
+    shadowRadius: 18,
+    elevation: 8,
+    alignItems: 'center',
+  },
+  header: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#FF9500',
+    marginBottom: 28,
+    letterSpacing: 0.5,
+  },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    marginBottom: 15,
-    borderRadius: 8,
+    width: '100%',
+    borderWidth: 1.5,
+    borderColor: '#A0C4FF',
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 16,
+    backgroundColor: '#F2F6FC',
+    marginBottom: 16,
+    color: '#22223B',
+  },
+  loginButton: {
+    backgroundColor: '#FF9500',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    marginTop: 10,
+    width: '100%',
+    shadowColor: '#FF9500',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    letterSpacing: 0.5,
+  },
+  signupLink: {
+    marginTop: 18,
+    alignItems: 'center',
+  },
+  signupText: {
+    color: '#4A4E69',
+    fontSize: 15,
   },
 });
