@@ -26,3 +26,16 @@ Our first React Native + Expo MVP app that helps students connect through quick,
 - Database: Firestore (users and groups), Realtime Database (locations)  
 - Maps: react-native-maps  
 - Testing: Jest with jest-expo  
+## Get started
+
+1. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+2. Start the app
+
+   ```bash
+    npx expo start
+   ```
