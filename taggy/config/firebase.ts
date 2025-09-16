@@ -11,13 +11,13 @@ const getReactNativePersistence = (require("firebase/auth") as any).getReactNati
 
 // ✅ Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBqF-a585_YprljyW65inNt1RH5ez63nww",
-  authDomain: "taggy-d21ea.firebaseapp.com",
-  projectId: "taggy-d21ea",
-  storageBucket: "taggy-d21ea.appspot.com", // 🔧 fixed incorrect domain
-  messagingSenderId: "955186504959",
-  appId: "1:955186504959:web:6541cd8c2feca0bd9358ca",
-  measurementId: "G-BNBGB07ZMP"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "", // 🔧 fixed incorrect domain
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
 };
 
 // ✅ Initialize Firebase app
@@ -33,3 +33,4 @@ const realtimeDb = getDatabase(app); // 👈
 const storage = getStorage(app);
 
 export { app, auth, db, realtimeDb, storage };
+
